@@ -1,3 +1,5 @@
+package com.clay;
+
 import java.util.ArrayList;
 
 public class Main {

@@ -1,3 +1,20 @@
+package com.clay;
+
+import com.github.arteam.simplejsonrpc.client.JsonRpcClient;
+import com.github.arteam.simplejsonrpc.client.Transport;
+import com.google.common.base.Charsets;
+import com.google.common.net.HttpHeaders;
+import com.google.common.net.MediaType;
+import com.sun.istack.internal.NotNull;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+
+import java.io.IOException;
+
 public class Wallet {
     private Integer balance;
 
@@ -44,7 +61,6 @@ public class Wallet {
         CloseableHttpClient httpClient = HttpClients.createDefault();
 
         @NotNull
-        @Override
         public String pass(@NotNull String request) throws IOException {
             // Used Apache HttpClient 4.3.1 as an example
             HttpPost post = new HttpPost("http://json-rpc-server/team");

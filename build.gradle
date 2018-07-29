@@ -10,13 +10,21 @@ repositories {
     mavenCentral()
 }
 
-task(runMain, dependsOn: 'classes', type: JavaExec) {
+task(type: JavaExec) {
     main = 'com.clay.Main'
     classpath = sourceSets.main.runtimeClasspath
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version '4.12'
+
+    compile 'org.apache.httpcomponents:httpclient:4.5.6'
+    // https://mvnrepository.com/artifact/com.github.arteam/simple-json-rpc-client
+    compile 'com.github.arteam:simple-json-rpc-client:0.9'
+
+
+    // https://mvnrepository.com/artifact/com.github.arteam/simple-json-rpc-server
+    compile 'com.github.arteam:simple-json-rpc-server:0.9'
+    testCompile 'junit:junit:4.12'
 }
 
 jar {
