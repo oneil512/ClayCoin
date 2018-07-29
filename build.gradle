@@ -1,0 +1,28 @@
+group 'com.clay'
+
+apply plugin: 'idea'
+apply plugin: 'application'
+apply plugin: 'java'
+
+mainClassName="Main"
+
+repositories {
+    mavenCentral()
+}
+
+task(runMain, dependsOn: 'classes', type: JavaExec) {
+    main = 'com.clay.Main'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version '4.12'
+}
+
+jar {
+    baseName = 'gs-gradle'
+    version =  '0.1.0'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
