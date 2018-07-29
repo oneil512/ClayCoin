@@ -17,6 +17,7 @@ task(type: JavaExec) {
 
 dependencies {
 
+    compile 'org.apache.commons:commons-lang3:3.7'
     compile 'org.apache.httpcomponents:httpclient:4.5.6'
     // https://mvnrepository.com/artifact/com.github.arteam/simple-json-rpc-client
     compile 'com.github.arteam:simple-json-rpc-client:0.9'

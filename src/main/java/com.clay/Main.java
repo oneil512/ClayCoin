@@ -8,10 +8,7 @@ public class Main {
 
     public static void main(String[] args){
 
-        String[] genesisTransactions = {};
-        Block genesisBlock = new Block(0, genesisTransactions);
 
-        System.out.print(genesisBlock.getBlockHash());
 
     }
 }
