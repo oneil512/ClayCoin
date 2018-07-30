@@ -1,21 +1,17 @@
 package com.clay;
 
-
-import com.sun.tools.javac.util.List;
-import org.apache.commons.lang3.ArrayUtils;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Block {
-    private int previousHash;
+    private Integer previousHash;
     private ArrayList<String> transactions;
-    private int nonce;
+    private Integer nonce;
     private Instant ts;
-    private int merkleRoot;
+    private Integer merkleRoot;
 
-    private int blockHash;
+    private Integer blockHash;
 
     public Block(int previousHash, ArrayList<String> transactions) {
         this.previousHash = previousHash;
@@ -55,11 +51,11 @@ public class Block {
         return transactions;
     }
 
-    public int getPreviousHash() {
+    public Integer getPreviousHash() {
         return previousHash;
     }
 
-    public int getBlockHash() {
+    public Integer getBlockHash() {
         return blockHash;
     }
 
@@ -67,7 +63,7 @@ public class Block {
         return nonce;
     }
 
-    public void setNonce(int nonce) {
+    public void setNonce(Integer nonce) {
         this.nonce = nonce;
     }
 
@@ -78,4 +74,17 @@ public class Block {
     public void setTs(Instant ts) {
         this.ts = ts;
     }
+
+    public Integer getMerkleRoot() {
+        return merkleRoot;
+    }
+
+    public String getBlockHead() {
+        return previousHash.toString() +
+                transactions.toString() +
+                nonce.toString() +
+                ts.toString() +
+                merkleRoot.toString();
+    }
+
 }
