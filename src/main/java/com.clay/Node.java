@@ -29,7 +29,7 @@ public class Node {
         String check = IntStream.range(0, difficulty).mapToObj(i -> s).collect(Collectors.joining(""));
         while(pendingTransactions.size() > 0){
             boolean minedBlock = false;
-            Block block = new Block(blockchain.getLastBlock().getBlockHash(), pendingTransactions);
+            Block block = new Block(blockchain.getLastBlock().getBlockHash(), pendingTransactions, blockchain);
             while(!minedBlock){
                 String sha256hex = DigestUtils.sha256Hex(block.getBlockHead());
                 if (sha256hex.startsWith(check)){
