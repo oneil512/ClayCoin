@@ -37,7 +37,9 @@ public class Node {
                 if (sha256hex.startsWith(check)){
                     block.setBlockHash(sha256hex);
                     minedBlock = true;
+                    System.out.print(block.getBlockHash());
                 }
+                block.incrementNonce();
             }
             broadcastBlock(block);
 

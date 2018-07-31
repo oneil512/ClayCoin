@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 
 public class Wallet {
-    private Integer balance;
+    private Integer balance = 0;
 
     private String address;
     private String privateKey;

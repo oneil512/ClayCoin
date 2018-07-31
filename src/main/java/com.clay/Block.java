@@ -8,7 +8,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 public class Block {
     private String previousHash;
     private ArrayList<String> transactions;
-    private Integer nonce;
+    private Integer nonce = 0;
     private Instant ts;
     private Integer merkleRoot;
     private Integer reward = 10;
@@ -19,19 +19,19 @@ public class Block {
         this.previousHash = previousHash;
         this.transactions = transactions;
         this.ts = Instant.now();
+        this.transactions.add(0, new Transaction(reward, "0", address).toString());
         this.merkleRoot = generateMerkleRoot();
-        transactions.add(0, new Transaction(reward, "0", address).toString());
 
         this.blockHash = DigestUtils.sha256Hex(getBlockHead());
     }
 
     private int generateMerkleRoot(){
         if(transactions.size() % 2 != 0){
-                transactions.set(transactions.size(), transactions.get(transactions.size() - 1));
+                transactions.add(transactions.get(transactions.size() - 1));
         }
         ArrayList<Integer> list = new ArrayList<>();
         for(int i = 0; i < transactions.size(); i++){
-            list.set(i, transactions.get(i).hashCode());
+            list.add(transactions.get(i).hashCode());
         }
 
         while(list.size() > 1){
@@ -43,7 +43,7 @@ public class Block {
             list.remove(list.size() - 1);
 
             Integer h3 = (h1.toString() + h2.toString()).hashCode();
-            list.set(list.size(), h3);
+            list.add(h3);
         }
         return list.get(0);
     }
@@ -54,6 +54,10 @@ public class Block {
 
     public String getPreviousHash() {
         return previousHash;
+    }
+
+    public void incrementNonce(){
+        this.nonce += 1;
     }
 
     public String getBlockHash() {
