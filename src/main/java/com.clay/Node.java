@@ -26,12 +26,18 @@ public class Node {
     }
 
     public void mine(int difficulty){
+        String check = IntStream.range(0, difficulty).mapToObj(i -> s).collect(Collectors.joining(""));
         while(pendingTransactions.size() > 0){
             boolean minedBlock = false;
             Block block = new Block(blockchain.getLastBlock().getBlockHash(), pendingTransactions);
             while(!minedBlock){
                 String sha256hex = DigestUtils.sha256Hex(block.getBlockHead());
+                if (sha256hex.startsWith(check)){
+                    block.setBlockHash(sha256hex);
+                    minedBlock = true;
+                }
             }
+            broadcastBlock(block);
 
             checkForNewBlock();
         }
@@ -44,5 +50,8 @@ public class Node {
 
     private void checkForNewBlock(){
 
+    }
+    
+    private void broadcastBlock(Block block){
     }
 }
