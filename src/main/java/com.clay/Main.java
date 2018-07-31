@@ -11,7 +11,7 @@ public class Main {
 
 	Node node = new Node(blockchain, wallet);
 
-	wallet.sendTransaction(0, wallet.getAddress(), wallet.getAddress());
+	wallet.sendTransaction(0, wallet.getAddress());
 
 	node.mine(4);
 

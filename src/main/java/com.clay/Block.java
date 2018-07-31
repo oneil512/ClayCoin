@@ -80,6 +80,10 @@ public class Block {
         return merkleRoot;
     }
 
+    public void setBlockHash(String hash){
+        this.blockHash = hash;
+    }
+
     public String getBlockHead() {
         return previousHash +
                 transactions.toString() +

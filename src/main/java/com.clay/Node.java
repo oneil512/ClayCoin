@@ -28,7 +28,7 @@ public class Node {
     }
 
     public void mine(int difficulty){
-        String check = IntStream.range(0, difficulty).mapToObj(i -> s).collect(Collectors.joining(""));
+        String check = new String(new char[difficulty]).replace("\0", "0");
         while(pendingTransactions.size() > 0){
             boolean minedBlock = false;
             Block block = new Block(blockchain.getLastBlock().getBlockHash(), pendingTransactions, wallet.getAddress());
