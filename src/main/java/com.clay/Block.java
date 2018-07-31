@@ -3,26 +3,26 @@ package com.clay;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import org.apache.commons.codec.digest.DigestUtils;
 
 public class Block {
-    private Integer previousHash;
+    private String previousHash;
     private ArrayList<String> transactions;
     private Integer nonce;
     private Instant ts;
     private Integer merkleRoot;
+    private Integer reward = 10;
 
-    private Integer blockHash;
+    private String blockHash;
 
-    public Block(int previousHash, ArrayList<String> transactions, Blockchain blockchain, String address) {
+    public Block(String previousHash, ArrayList<String> transactions,  String address) {
         this.previousHash = previousHash;
         this.transactions = transactions;
         this.ts = Instant.now();
         this.merkleRoot = generateMerkleRoot();
-        transactions.add(new Transaction(0, address, blockchain.getReward()));
+        transactions.add(0, new Transaction(reward, "0", address).toString());
 
-        Object[] contents = {transactions, previousHash};
-
-        blockHash = Arrays.hashCode(contents);
+        this.blockHash = DigestUtils.sha256Hex(getBlockHead());
     }
 
     private int generateMerkleRoot(){
@@ -52,11 +52,11 @@ public class Block {
         return transactions;
     }
 
-    public Integer getPreviousHash() {
+    public String getPreviousHash() {
         return previousHash;
     }
 
-    public Integer getBlockHash() {
+    public String getBlockHash() {
         return blockHash;
     }
 
@@ -81,7 +81,7 @@ public class Block {
     }
 
     public String getBlockHead() {
-        return previousHash.toString() +
+        return previousHash +
                 transactions.toString() +
                 nonce.toString() +
                 ts.toString() +
