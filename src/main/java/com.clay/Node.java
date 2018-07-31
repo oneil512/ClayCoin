@@ -15,9 +15,11 @@ public class Node {
     private ArrayList<String> pendingTransactions = new ArrayList<>();
     private Blockchain blockchain;
     private MessageDigest digest;
+    private Wallet wallet;
 
-    public Node(Blockchain blockchain){
+    public Node(Blockchain blockchain, Wallet wallet){
         this.blockchain = blockchain;
+	this.wallet = wallet;
         try {
             this.digest = MessageDigest.getInstance("SHA-256");
         } catch (Exception e) {
@@ -29,7 +31,7 @@ public class Node {
         String check = IntStream.range(0, difficulty).mapToObj(i -> s).collect(Collectors.joining(""));
         while(pendingTransactions.size() > 0){
             boolean minedBlock = false;
-            Block block = new Block(blockchain.getLastBlock().getBlockHash(), pendingTransactions, blockchain);
+            Block block = new Block(blockchain.getLastBlock().getBlockHash(), pendingTransactions, blockchain, wallet.getAddress());
             while(!minedBlock){
                 String sha256hex = DigestUtils.sha256Hex(block.getBlockHead());
                 if (sha256hex.startsWith(check)){

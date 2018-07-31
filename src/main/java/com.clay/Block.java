@@ -13,12 +13,12 @@ public class Block {
 
     private Integer blockHash;
 
-    public Block(int previousHash, ArrayList<String> transactions, Blockchain blockchain) {
+    public Block(int previousHash, ArrayList<String> transactions, Blockchain blockchain, String address) {
         this.previousHash = previousHash;
         this.transactions = transactions;
         this.ts = Instant.now();
         this.merkleRoot = generateMerkleRoot();
-        transactions.add(new Transaction(0, thisaddress, blockchain.getReward()));
+        transactions.add(new Transaction(0, address, blockchain.getReward()));
 
         Object[] contents = {transactions, previousHash};
 

@@ -30,6 +30,10 @@ public class Wallet {
         return balance;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
     public Boolean sendTransaction(double amount, String toAddress){
         if (balance >= amount) {
             Transaction transaction = new Transaction(amount, address, toAddress);
