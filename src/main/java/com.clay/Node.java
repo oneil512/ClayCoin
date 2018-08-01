@@ -27,7 +27,7 @@ public class Node {
     }
 
     public void mine(int difficulty){
-        String check = IntStream.range(0, difficulty).mapToObj(i -> s).collect(Collectors.joining(""));
+        String check = new String(new char[difficulty]).replace("\0", "0");
         while(pendingTransactions.size() > 0){
             boolean minedBlock = false;
             Block block = new Block(blockchain.getLastBlock().getBlockHash(), pendingTransactions, wallet.getAddress());
@@ -36,7 +36,9 @@ public class Node {
                 if (sha256hex.startsWith(check)){
                     block.setBlockHash(sha256hex);
                     minedBlock = true;
+                    System.out.print(block.getBlockHash());
                 }
+                block.incrementNonce();
             }
             broadcastBlock(block);
 

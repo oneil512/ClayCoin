@@ -5,18 +5,18 @@ import com.github.arteam.simplejsonrpc.client.Transport;
 import com.google.common.base.Charsets;
 import com.google.common.net.HttpHeaders;
 import com.google.common.net.MediaType;
-import com.sun.istack.internal.NotNull;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
 public class Wallet {
-    private Integer balance;
+    private Integer balance = 0;
 
     private String address;
     private String privateKey;
