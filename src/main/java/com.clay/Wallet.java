@@ -54,25 +54,5 @@ public class Wallet {
     }
 
     public void broadcastTransaction(Transaction transaction) {
-        client.createNotification()
-                .method("getTransactions")
-                .param("transaction", transaction.toString())
-                .execute();
     }
-
-    JsonRpcClient client = new JsonRpcClient(new Transport() {
-
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-
-        @NotNull
-        public String pass(@NotNull String request) throws IOException {
-            // Used Apache HttpClient 4.3.1 as an example
-            HttpPost post = new HttpPost("http://json-rpc-server/team");
-            post.setEntity(new StringEntity(request, Charsets.UTF_8));
-            post.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.JSON_UTF_8.toString());
-            try (CloseableHttpResponse httpResponse = httpClient.execute(post)) {
-                return EntityUtils.toString(httpResponse.getEntity(), Charsets.UTF_8);
-            }
-        }
-    });
 }

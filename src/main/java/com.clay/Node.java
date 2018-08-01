@@ -9,7 +9,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 
-@JsonRpcService
 public class Node {
 
     private ArrayList<String> pendingTransactions = new ArrayList<>();
@@ -45,8 +44,7 @@ public class Node {
         }
     }
 
-    @JsonRpcMethod
-    public void getTransactions(@JsonRpcParam("transaction") Transaction transaction){
+    public void getTransactions(Transaction transaction){
         pendingTransactions.add(transaction.toString());
     }
 
