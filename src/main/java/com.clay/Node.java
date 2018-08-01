@@ -1,29 +1,17 @@
 package com.clay;
 
-import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcMethod;
-import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcParam;
-import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcService;
 import org.apache.commons.codec.digest.DigestUtils;
-
-
-import java.security.MessageDigest;
 import java.util.ArrayList;
 
 public class Node {
 
     private ArrayList<String> pendingTransactions = new ArrayList<>();
     private Blockchain blockchain;
-    private MessageDigest digest;
     private Wallet wallet;
 
-    public Node(Blockchain blockchain, Wallet wallet){
-        this.blockchain = blockchain;
+    public Node(Wallet wallet){
+        this.blockchain = wallet.getblockchain();
 	this.wallet = wallet;
-        try {
-            this.digest = MessageDigest.getInstance("SHA-256");
-        } catch (Exception e) {
-            System.out.print(e.getLocalizedMessage());
-        }
     }
 
     public void mine(int difficulty){
@@ -46,7 +34,7 @@ public class Node {
         }
     }
 
-    public void getTransactions(Transaction transaction){
+    public void listenForTransactions(Transaction transaction){
         pendingTransactions.add(transaction.toString());
     }
 

@@ -20,10 +20,12 @@ public class Wallet {
 
     private String address;
     private String privateKey;
+    private Blockchain blockchain;
 
-    public Wallet(){
+    public Wallet(Blockchain blockchain){
         this.privateKey = randomAlphaNumeric(32);
         this.address = randomAlphaNumeric(32);
+	this.blockchain = blockchain;
     }
 
     public Integer getBalance() {
@@ -54,5 +56,9 @@ public class Wallet {
     }
 
     public void broadcastTransaction(Transaction transaction) {
+    }
+
+    public Blockchain getBlockchain(){
+	return this.blockchain;
     }
 }
