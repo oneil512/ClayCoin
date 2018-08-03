@@ -2,30 +2,33 @@ package com.clay;
 
 import com.github.arteam.simplejsonrpc.client.JsonRpcClient;
 import com.github.arteam.simplejsonrpc.client.Transport;
-import com.google.common.base.Charsets;
-import com.google.common.net.HttpHeaders;
-import com.google.common.net.MediaType;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-import org.jetbrains.annotations.NotNull;
+import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcMethod;
+import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcParam;
+import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcService;
+import com.github.arteam.simplejsonrpc.server.JsonRpcServer;
 
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Date;
 
+@JsonRpcService
 public class Wallet {
     private Integer balance = 0;
 
     private String address;
     private String privateKey;
     private Blockchain blockchain;
+    private JsonRpcServer rpcServer;
 
     public Wallet(Blockchain blockchain){
         this.privateKey = randomAlphaNumeric(32);
         this.address = randomAlphaNumeric(32);
-	this.blockchain = blockchain;
+	    this.blockchain = blockchain;
+        this.rpcServer = new JsonRpcServer();
+
+        startServer();
+
     }
 
     public Integer getBalance() {
@@ -58,7 +61,32 @@ public class Wallet {
     public void broadcastTransaction(Transaction transaction) {
     }
 
+    public void startServer(){
+        try {
+            JsonRpcServer rpcServer = new JsonRpcServer();
+            ServerSocket server = new ServerSocket(8331);
+            System.out.println("Listening for connection on port 8331 ....");
+            while (true) {
+                try (Socket socket = server.accept()) {
+                    Date today = new Date();
+                    String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + today;
+                    socket.getOutputStream().write(httpResponse.getBytes("UTF-8"));
+                    String response = rpcServer.handle(request, teamService);
+                } catch (IOException e) {
+                    System.out.print(e.getMessage());
+                }
+            }
+        } catch (IOException e){
+            System.out.print(e.getMessage());
+        }
+    }
+
     public Blockchain getBlockchain(){
-	return this.blockchain;
+	    return this.blockchain;
+    }
+
+    @JsonRpcMethod
+    private Transaction receiveTransaction(@JsonRpcParam("transaction") Transaction transaction){
+        return transaction;
     }
 }
