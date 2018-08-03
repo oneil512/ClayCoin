@@ -4,14 +4,17 @@ public class Main {
 
     public static void main(String[] args){
 
-	Blockchain blockchain = new Blockchain();
-	Wallet wallet = new Wallet(blockChain);
+    	Blockchain blockchain = new Blockchain();
 
-	Node node = new Node(wallet);
+		Wallet wallet = new Wallet(blockchain);
+		Wallet wallet2 = new Wallet(blockchain);
 
-	wallet.sendTransaction(0, wallet.getAddress());
+		Node node = new Node(wallet);
+		node.start();
 
-	node.mine(4);
+		wallet.sendTransaction(0, wallet2.getAddress());
+
+	//	node.mine(4);
 
 
     }

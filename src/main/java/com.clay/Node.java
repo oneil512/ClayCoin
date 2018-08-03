@@ -1,12 +1,26 @@
 package com.clay;
 
+import com.github.arteam.simplejsonrpc.client.JsonRpcClient;
+import com.github.arteam.simplejsonrpc.client.Transport;
 import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcMethod;
 import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcParam;
 import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcService;
 import com.github.arteam.simplejsonrpc.server.JsonRpcServer;
+import com.google.common.base.Charsets;
+import com.google.common.net.HttpHeaders;
+import com.google.common.net.MediaType;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -15,19 +29,35 @@ import java.util.Date;
 //TODO have a thread check for new blocks
 
 @JsonRpcService
-public class Node {
+public class Node extends Thread {
 
     private ArrayList<String> pendingTransactions = new ArrayList<>();
     private Blockchain blockchain;
     private Wallet wallet;
     private JsonRpcServer rpcServer;
+    private JsonRpcClient client;
 
     public Node(Wallet wallet){
         this.blockchain = wallet.getBlockchain();
 	    this.wallet = wallet;
         this.rpcServer = new JsonRpcServer();
 
-	    startServer();
+        this.client = new JsonRpcClient(new Transport() {
+
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+
+            @NotNull
+            @Override
+            public String pass(@NotNull String request) throws IOException {
+                // Used Apache HttpClient 4.3.1 as an example
+                HttpPost post = new HttpPost("http://json-rpc-server/team");
+                post.setEntity(new StringEntity(request, Charsets.UTF_8));
+                post.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.JSON_UTF_8.toString());
+                try (CloseableHttpResponse httpResponse = httpClient.execute(post)) {
+                    return EntityUtils.toString(httpResponse.getEntity(), Charsets.UTF_8);
+                }
+            }
+        });
     }
 
     public void mine(int difficulty){
@@ -65,10 +95,21 @@ public class Node {
             System.out.println("Listening for connection on port 8332 ....");
             while (true) {
                 try (Socket socket = server.accept()) {
-                    Date today = new Date();
-                    String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + today;
-                    socket.getOutputStream().write(httpResponse.getBytes("UTF-8"));
-                    String response = rpcServer.handle(request, teamService);
+                    BufferedReader buffer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+                    String request = "";
+                    String line;
+                    while ((line = buffer.readLine()) != null) {
+                        if (line.isEmpty()) {
+                            break;
+                        }
+                        System.out.println(line);
+                        request += line;
+                    }
+
+                    System.out.print("port 8332 reading: " + request);
+
+                    String response = rpcServer.handle(request, this);
                 } catch (IOException e) {
                     System.out.print(e.getMessage());
                 }
@@ -83,5 +124,10 @@ public class Node {
 
     private boolean validateNewBlock(Block block){
         return true;
+    }
+
+    @Override
+    public void run() {
+        startServer();
     }
 }
