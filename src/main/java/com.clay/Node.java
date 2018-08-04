@@ -1,8 +1,13 @@
 package com.clay;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.bootstrap.HttpServer;
 import org.apache.http.impl.bootstrap.ServerBootstrap;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
 import java.io.*;
 
@@ -37,13 +42,6 @@ public class Node extends Thread {
         }
     }
 
-
-
-    private void listenForBlock(Block block){
-        validateNewBlock(block);
-
-    }
-
     public void startServer(){
         final HttpServer server = ServerBootstrap.bootstrap()
                 .setListenerPort(8332)
@@ -59,6 +57,17 @@ public class Node extends Thread {
     }
     
     private void broadcastBlock(Block block){
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost("http://localhost:8331");
+        StringEntity requestEntity = new StringEntity(
+                "{\"method\" : \"listenForTransactions\", \"data\" : " + block.toJson() + " }",
+                ContentType.APPLICATION_JSON);
+        try {
+            httpPost.setEntity(requestEntity);
+            httpclient.execute(httpPost);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private boolean validateNewBlock(Block block){

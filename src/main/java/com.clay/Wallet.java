@@ -1,34 +1,28 @@
 package com.clay;
 
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.bootstrap.HttpServer;
+import org.apache.http.impl.bootstrap.ServerBootstrap;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-public class Wallet extends Thread{
+public class Wallet extends Thread {
     private Integer balance = 0;
 
     private String address;
     private String privateKey;
     private Blockchain blockchain;
+    private WalletService walletService;
 
     public Wallet(Blockchain blockchain){
         this.privateKey = randomAlphaNumeric(32);
         this.address = randomAlphaNumeric(32);
 	    this.blockchain = blockchain;
-        //startServer();
+        this.walletService = new WalletService();
 
     }
 
@@ -63,23 +57,29 @@ public class Wallet extends Thread{
 
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost("http://localhost:8332");
-        //List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-        //nvps.add(new BasicNameValuePair("method", "listenForTransactions"));
-        //nvps.add(new BasicNameValuePair("transaction", transaction.toString()));
         StringEntity requestEntity = new StringEntity(
                 "{\"method\" : \"listenForTransactions\", \"data\" : " + transaction.toJson() + " }",
                 ContentType.APPLICATION_JSON);
         try {
-            //httpPost.setEntity(new UrlEncodedFormEntity(nvps));
             httpPost.setEntity(requestEntity);
-            CloseableHttpResponse response2 = httpclient.execute(httpPost);
+            httpclient.execute(httpPost);
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
     }
 
     public void startServer(){
+        final HttpServer server = ServerBootstrap.bootstrap()
+                .setListenerPort(8332)
+                .setServerInfo("Test/1.1")
+                .registerHandler("*", this.walletService)
+                .create();
 
+        try {
+            server.start();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public Blockchain getBlockchain(){
@@ -88,5 +88,10 @@ public class Wallet extends Thread{
 
     private Transaction receiveTransaction(Transaction transaction){
         return transaction;
+    }
+
+    @Override
+    public void run() {
+        startServer();
     }
 }

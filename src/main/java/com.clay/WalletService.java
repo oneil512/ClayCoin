@@ -10,7 +10,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class NodeService implements HttpRequestHandler {
+public class WalletService implements HttpRequestHandler {
     private ArrayList<String> pendingTransactions = new ArrayList<>();
 
 
@@ -32,28 +32,16 @@ public class NodeService implements HttpRequestHandler {
         //TODO write output to log file
         System.out.println(jsonObj);
 
-        if(jsonObj.get("method").toString().equals("listenForTransactions")){
-            JSONObject payload = jsonObj.getJSONObject("data");
-            ObjectMapper mapper = new ObjectMapper();
-
-            Transaction transaction = mapper.readValue(payload.toString(), Transaction.class);
-            listenForTransactions(transaction);
-        }
-
         if(jsonObj.get("method").toString().equals("listenForBlocks")){
             JSONObject payload = jsonObj.getJSONObject("data");
             ObjectMapper mapper = new ObjectMapper();
 
             Block block = mapper.readValue(payload.toString(), Block.class);
-            listenForBlock(block);
+            listenForBlocks(block);
         }
     }
-    public void listenForTransactions(Transaction transaction){
-        pendingTransactions.add(transaction.toString());
-    }
-
-    private void listenForBlock(Block block){
-        //validateNewBlock(block);
+    public void listenForBlocks(Block block){
+        System.out.print(1);
     }
 
     public ArrayList<String> getPendingTransactions() {

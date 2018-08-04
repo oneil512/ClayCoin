@@ -1,5 +1,9 @@
 package com.clay;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+
+import java.security.PublicKey;
 import java.util.Arrays;
 
 public class Transaction {
@@ -10,6 +14,8 @@ public class Transaction {
     private int hash;
 
     private double amount;
+
+    public Transaction(){}
 
     public Transaction(double amount, String fromAddress, String toAddress){
         this.fromAddress = fromAddress;
@@ -53,9 +59,15 @@ public class Transaction {
     }
 
     public String toJson() {
-        return "{ \"fromAddress\" : \"" + fromAddress + "\"," +
+        /*return "{ \"fromAddress\" : \"" + fromAddress + "\"," +
          "\"toAddress\" : \"" + toAddress + "\"," +
          "\"hash\" : \"" + hash + "\"," +
-         "\"amount\" : \"" + amount + "\"," + "}";
+         "\"amount\" : \"" + amount + "\"," + "}";*/
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        try {
+            return ow.writeValueAsString(this);
+        } catch (Exception e) {
+            return "{}";
+        }
     }
 }

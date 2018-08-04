@@ -2,18 +2,23 @@ package com.clay;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.apache.commons.codec.digest.DigestUtils;
 
 public class Block {
     private String previousHash;
     private ArrayList<String> transactions;
+
     private Integer nonce = 0;
     private Instant ts;
+
     private Integer merkleRoot;
     private Integer reward = 10;
-
     private String blockHash;
+
+    public Block(){}
 
     public Block(String previousHash, ArrayList<String> transactions,  String address) {
         this.previousHash = previousHash;
@@ -86,6 +91,15 @@ public class Block {
 
     public void setBlockHash(String hash){
         this.blockHash = hash;
+    }
+
+    public String toJson() {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        try {
+            return ow.writeValueAsString(this);
+        } catch (Exception e) {
+            return "{}";
+        }
     }
 
     public String getBlockHead() {
