@@ -7,12 +7,12 @@ public class Main {
     	Blockchain blockchain = new Blockchain();
 
 		Wallet wallet = new Wallet(blockchain);
+		Node node = new Node(wallet);
+		node.run();
+
 		Wallet wallet2 = new Wallet(blockchain);
 
-		Node node = new Node(wallet);
-		node.start();
-
-		wallet.sendTransaction(0, wallet2.getAddress());
+		wallet2.sendTransaction(0, wallet.getAddress());
 
 	//	node.mine(4);
 

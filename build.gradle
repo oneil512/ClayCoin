@@ -19,9 +19,9 @@ dependencies {
 
     compile 'commons-codec:commons-codec:1.11'
     compile 'org.apache.commons:commons-lang3:3.7'
-    compile 'org.apache.httpcomponents:httpclient:4.5.6'
-    compile 'com.github.arteam:simple-json-rpc-client:0.9'
-    compile 'com.github.arteam:simple-json-rpc-server:0.9'
+    compile group: 'com.mashape.unirest', name: 'unirest-java', version: '1.4.9'
+
+
 
     testCompile 'junit:junit:4.12'
 }
