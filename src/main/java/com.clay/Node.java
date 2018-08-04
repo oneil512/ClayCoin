@@ -7,7 +7,7 @@ import org.apache.http.impl.bootstrap.ServerBootstrap;
 import java.io.*;
 
 
-public class Node extends Thread{
+public class Node extends Thread {
 
     private Blockchain blockchain;
     private Wallet wallet;
