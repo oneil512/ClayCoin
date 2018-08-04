@@ -5,13 +5,10 @@ import org.apache.http.impl.bootstrap.HttpServer;
 import org.apache.http.impl.bootstrap.ServerBootstrap;
 
 import java.io.*;
-import java.util.ArrayList;
 
-//TODO have a thread check for new blocks
 
 public class Node extends Thread{
 
-    private ArrayList<String> pendingTransactions = new ArrayList<>();
     private Blockchain blockchain;
     private Wallet wallet;
     private NodeService nodeService;
@@ -24,9 +21,9 @@ public class Node extends Thread{
 
     public void mine(int difficulty){
         String check = new String(new char[difficulty]).replace("\0", "0");
-        while(pendingTransactions.size() > 0){
+        while(nodeService.getPendingTransactions().size() > 0){
             boolean minedBlock = false;
-            Block block = new Block(blockchain.getLastBlock().getBlockHash(), pendingTransactions, wallet.getAddress());
+            Block block = new Block(blockchain.getLastBlock().getBlockHash(), nodeService.getPendingTransactions(), wallet.getAddress());
             while(!minedBlock){
                 String sha256hex = DigestUtils.sha256Hex(block.getBlockHead());
                 if (sha256hex.startsWith(check)){
@@ -40,9 +37,7 @@ public class Node extends Thread{
         }
     }
 
-    public void listenForTransactions(Transaction transaction){
-        pendingTransactions.add(transaction.toString());
-    }
+
 
     private void listenForBlock(Block block){
         validateNewBlock(block);

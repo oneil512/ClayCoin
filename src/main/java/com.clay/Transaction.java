@@ -52,13 +52,10 @@ public class Transaction {
         this.amount = amount;
     }
 
-    @Override
-    public String toString() {
-        return "Transaction{" +
-                "fromAddress='" + fromAddress + '\'' +
-                ", toAddress='" + toAddress + '\'' +
-                ", hash=" + hash +
-                ", amount=" + amount +
-                '}';
+    public String toJson() {
+        return "{ \"fromAddress\" : \"" + fromAddress + "\"," +
+         "\"toAddress\" : \"" + toAddress + "\"," +
+         "\"hash\" : \"" + hash + "\"," +
+         "\"amount\" : \"" + amount + "\"," + "}";
     }
 }

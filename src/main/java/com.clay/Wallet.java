@@ -7,6 +7,8 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
@@ -61,11 +63,15 @@ public class Wallet extends Thread{
 
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost("http://localhost:8332");
-        List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-        nvps.add(new BasicNameValuePair("method", "listenForTransactions"));
-        nvps.add(new BasicNameValuePair("transaction", transaction.toString()));
+        //List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+        //nvps.add(new BasicNameValuePair("method", "listenForTransactions"));
+        //nvps.add(new BasicNameValuePair("transaction", transaction.toString()));
+        StringEntity requestEntity = new StringEntity(
+                "{\"method\" : \"listenForTransactions\", \"data\" : " + transaction.toJson() + " }",
+                ContentType.APPLICATION_JSON);
         try {
-            httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+            //httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+            httpPost.setEntity(requestEntity);
             CloseableHttpResponse response2 = httpclient.execute(httpPost);
         } catch (IOException e) {
             System.out.println(e.getMessage());
