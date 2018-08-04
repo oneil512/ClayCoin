@@ -10,6 +10,7 @@ public class Blockchain {
     public Blockchain(){
         ArrayList<String> genesisTransactions = new ArrayList<>();
         Block genesisBlock = new Block("0", genesisTransactions, "address");
+        chain.add(genesisBlock);
 
     }
 
