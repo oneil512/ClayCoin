@@ -41,7 +41,7 @@ public class WalletService implements HttpRequestHandler {
         }
     }
     public void listenForBlocks(Block block){
-        System.out.print(1);
+
     }
 
     public ArrayList<String> getPendingTransactions() {

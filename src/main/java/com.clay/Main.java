@@ -11,7 +11,7 @@ public class Main {
 		node.run();
 
 		Wallet wallet2 = new Wallet(blockchain);
-		//wallet2.run();
+		wallet2.run();
 
 		wallet2.sendTransaction(0, wallet.getAddress());
 

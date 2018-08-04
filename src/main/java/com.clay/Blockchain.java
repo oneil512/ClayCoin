@@ -16,4 +16,8 @@ public class Blockchain {
     public Block getLastBlock() {
         return chain.get(chain.size() - 1);
     }
+
+    public void addBlock(Block block){
+        chain.add(block);
+    }
 }

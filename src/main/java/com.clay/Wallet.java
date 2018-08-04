@@ -70,7 +70,7 @@ public class Wallet extends Thread {
 
     public void startServer(){
         final HttpServer server = ServerBootstrap.bootstrap()
-                .setListenerPort(8332)
+                .setListenerPort(8331)
                 .setServerInfo("Test/1.1")
                 .registerHandler("*", this.walletService)
                 .create();
