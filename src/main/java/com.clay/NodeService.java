@@ -1,6 +1,5 @@
 package com.clay;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.impl.bootstrap.HttpServer;
 import org.apache.http.impl.bootstrap.ServerBootstrap;
 

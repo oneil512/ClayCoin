@@ -60,7 +60,7 @@ public class NodeHandler implements HttpRequestHandler {
     }
     public void listenForTransactions(Transaction transaction){
         node.getPendingTransactions().add(transaction.toString());
-        mine(3);
+        mine(4);
     }
 
     private void listenForBlock(Block block){
@@ -101,7 +101,7 @@ public class NodeHandler implements HttpRequestHandler {
 
             while (!minedBlock) {
                 String sha256hex = DigestUtils.sha256Hex(block.getBlockHead());
-                System.out.println("hash " + sha256hex);
+                //System.out.println("hash " + sha256hex);
 
                 if (sha256hex.startsWith(check)) {
                     block.setBlockHash(sha256hex);
@@ -111,6 +111,7 @@ public class NodeHandler implements HttpRequestHandler {
                 block.incrementNonce();
             }
             broadcastBlock(block);
+            System.out.println(block.getNonce());
             node.setPendingTransactions(new ArrayList<>());
         }
     }

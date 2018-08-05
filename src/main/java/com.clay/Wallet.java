@@ -11,7 +11,7 @@ import org.apache.http.impl.client.HttpClients;
 import java.io.IOException;
 
 public class Wallet extends Thread {
-    private Integer balance = 0;
+    private double balance = 0;
 
     private String address;
     private String privateKey;
@@ -26,7 +26,7 @@ public class Wallet extends Thread {
 
     }
 
-    public Integer getBalance() {
+    public double getBalance() {
         return balance;
     }
 
@@ -38,6 +38,7 @@ public class Wallet extends Thread {
         if (balance >= amount) {
             Transaction transaction = new Transaction(amount, address, toAddress);
             broadcastTransaction(transaction);
+            balance -= amount;
             return true;
         }
         return false;
