@@ -60,15 +60,23 @@ public class NodeHandler implements HttpRequestHandler {
     }
     public void listenForTransactions(Transaction transaction){
         node.getPendingTransactions().add(transaction.toString());
-        mine(4);
+        if(validateTransaction(transaction)) {
+            mine(4);
+        }
     }
 
     private void listenForBlock(Block block){
-        validateNewBlock(block);
+        validateBlock(block);
     }
 
-    //TODO implement block validation
-    private boolean validateNewBlock(Block block){
+    private boolean validateBlock(Block block){
+        return DigestUtils.sha256Hex(block.getBlockHead()).equals(block.getBlockHash());
+    }
+
+    private boolean validateTransaction(Transaction transaction){
+        if(transaction.getAmount() < 0) {
+            return false;
+        }
         return true;
     }
 
