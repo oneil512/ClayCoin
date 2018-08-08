@@ -1,6 +1,7 @@
 package com.clay;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.*;
 import org.apache.http.client.methods.HttpPost;
@@ -12,8 +13,11 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
+import sun.security.ec.ECPublicKeyImpl;
 
 import java.io.IOException;
+import java.security.PublicKey;
+import java.security.Signature;
 import java.util.ArrayList;
 
 public class NodeHandler implements HttpRequestHandler {
@@ -36,7 +40,6 @@ public class NodeHandler implements HttpRequestHandler {
         } else {
             data = EntityUtils.toByteArray(entity);
         }
-
         JSONObject jsonObj = new JSONObject(new String(data));
 
         //TODO write output to log file
@@ -74,10 +77,24 @@ public class NodeHandler implements HttpRequestHandler {
     }
 
     private boolean validateTransaction(Transaction transaction){
-        if(transaction.getAmount() < 0) {
-            return false;
+
+        Boolean verifySig = false;
+        try {
+            Signature sig = Signature.getInstance("SHA1WithECDSA");
+            PublicKey pk = new ECPublicKeyImpl(Base64.decodeBase64(transaction.getFromAddress()));
+            sig.initVerify(pk);
+            sig.update(transaction.getHash().getBytes());
+            System.out.println(sig.verify(Base64.decodeBase64(transaction.getSignature())));
+            verifySig = sig.verify(Base64.decodeBase64(transaction.getSignature()));
+
+        } catch (Exception e){
+            System.out.println(e.getMessage());
         }
-        return true;
+
+        if(transaction.getAmount() > 0 && verifySig) {
+            return true;
+        }
+        return false;
     }
 
 

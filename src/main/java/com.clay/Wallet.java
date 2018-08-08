@@ -7,22 +7,28 @@ import org.apache.http.impl.bootstrap.HttpServer;
 import org.apache.http.impl.bootstrap.ServerBootstrap;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import sun.misc.BASE64Encoder;
 
 import java.io.IOException;
+import java.security.*;
+import java.security.spec.ECGenParameterSpec;
+import java.util.Base64;
 
 public class Wallet extends Thread {
     private double balance = 0;
 
-    private String address;
-    private String privateKey;
     private Blockchain blockchain;
     private WalletService walletService;
+    private KeyPair keyPair;
 
     public Wallet(Blockchain blockchain){
-        this.privateKey = randomAlphaNumeric(32);
-        this.address = randomAlphaNumeric(32);
 	    this.blockchain = blockchain;
         this.walletService = new WalletService();
+        try {
+            this.keyPair = getKeyPair();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
     }
 
@@ -31,12 +37,17 @@ public class Wallet extends Thread {
     }
 
     public String getAddress() {
-        return address;
+        return Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded());
+    }
+
+    public PublicKey getPublicKey(){
+        return keyPair.getPublic();
     }
 
     public Boolean sendTransaction(double amount, String toAddress){
         if (balance >= amount) {
-            Transaction transaction = new Transaction(amount, address, toAddress);
+            Transaction transaction = new Transaction(amount, getAddress(), toAddress);
+            transaction = signTransaction(transaction);
             broadcastTransaction(transaction);
             balance -= amount;
             return true;
@@ -44,14 +55,20 @@ public class Wallet extends Thread {
         return false;
     }
 
-    public static String randomAlphaNumeric(int count) {
-        final String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        StringBuilder builder = new StringBuilder();
-        while (count-- != 0) {
-            int character = (int)(Math.random()*ALPHA_NUMERIC_STRING.length());
-            builder.append(ALPHA_NUMERIC_STRING.charAt(character));
+    private Transaction signTransaction(Transaction transaction){
+        try {
+            byte[] data = transaction.getHash().getBytes();
+
+            Signature sig = Signature.getInstance("SHA1WithECDSA");
+            sig.initSign(keyPair.getPrivate());
+            sig.update(data);
+            byte[] signatureBytes = sig.sign();
+            transaction.setSignature(new BASE64Encoder().encode(signatureBytes));
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
-        return builder.toString();
+        return transaction;
     }
 
     public void broadcastTransaction(Transaction transaction) {
@@ -89,6 +106,14 @@ public class Wallet extends Thread {
 
     private Transaction receiveTransaction(Transaction transaction){
         return transaction;
+    }
+
+    private static KeyPair getKeyPair() throws Exception {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
+        ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256k1");
+        keyGen.initialize(ecSpec);
+        KeyPair kp = keyGen.generateKeyPair();
+        return kp;
     }
 
     @Override

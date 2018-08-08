@@ -1,5 +1,6 @@
 package com.clay;
 
+import java.security.PublicKey;
 import java.time.Instant;
 import java.util.ArrayList;
 
@@ -20,7 +21,7 @@ public class Block {
 
     public Block(){}
 
-    public Block(String previousHash, ArrayList<String> transactions,  String address) {
+    public Block(String previousHash, ArrayList<String> transactions, String address) {
         this.previousHash = previousHash;
         this.transactions = transactions;
         this.ts = Instant.now();

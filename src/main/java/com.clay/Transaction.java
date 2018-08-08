@@ -2,17 +2,17 @@ package com.clay;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-
-import java.security.PublicKey;
-import java.util.Arrays;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import org.apache.commons.codec.digest.DigestUtils;
 
 public class Transaction {
 
     private String fromAddress;
     private String toAddress;
+    private String hash;
+    private String publicKey;
 
-    private int hash;
-
+    private String signature;
     private double amount;
 
     public Transaction(){}
@@ -22,8 +22,8 @@ public class Transaction {
         this.toAddress = toAddress;
         this.amount = amount;
 
-        Object[] arr = {fromAddress, toAddress, amount};
-        this.hash = Arrays.hashCode(arr);
+        Object[] tx = {fromAddress, toAddress, amount};
+        this.hash = DigestUtils.sha256Hex(tx.toString());
     }
 
     public String getFromAddress() {
@@ -34,11 +34,11 @@ public class Transaction {
         this.fromAddress = fromAddress;
     }
 
-    public int getHash() {
+    public String getHash() {
         return hash;
     }
 
-    public void setHash(int hash) {
+    public void setHash(String hash) {
         this.hash = hash;
     }
 
@@ -58,16 +58,43 @@ public class Transaction {
         this.amount = amount;
     }
 
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
+
+    public String getPublicKey() {
+        return publicKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+    }
+
     public String toJson() {
-        /*return "{ \"fromAddress\" : \"" + fromAddress + "\"," +
-         "\"toAddress\" : \"" + toAddress + "\"," +
-         "\"hash\" : \"" + hash + "\"," +
-         "\"amount\" : \"" + amount + "\"," + "}";*/
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
         try {
             return ow.writeValueAsString(this);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return "{}";
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Transaction{" +
+                "fromAddress='" + fromAddress + '\'' +
+                ", toAddress='" + toAddress + '\'' +
+                ", hash='" + hash + '\'' +
+                ", publicKey=" + publicKey +
+                ", signature='" + signature + '\'' +
+                ", amount=" + amount +
+                '}';
     }
 }
