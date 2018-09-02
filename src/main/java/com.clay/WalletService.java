@@ -1,47 +1,49 @@
 package com.clay;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.*;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpRequestHandler;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONObject;
+import org.apache.http.impl.bootstrap.HttpServer;
+import org.apache.http.impl.bootstrap.ServerBootstrap;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
-public class WalletService implements HttpRequestHandler {
+public class WalletService extends Thread  {
     private ArrayList<String> pendingTransactions = new ArrayList<>();
+    private Wallet wallet;
+    private WalletHandler walletHandler;
 
+    public WalletService(Blockchain blockchain) {
+        this.wallet = new Wallet(blockchain);
+        this.walletHandler = new WalletHandler(wallet);
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> this.run());
+    }
+    public void startServer(){
+        final HttpServer server = ServerBootstrap.bootstrap()
+                .setListenerPort(8331)
+                .setServerInfo("Test/1.1")
+                .registerHandler("*", this.walletHandler)
+                .create();
 
-    public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext) throws HttpException, IOException {
-        byte[] data;
-        HttpEntity entity = null;
-
-        if (httpRequest instanceof HttpEntityEnclosingRequest)
-            entity = ((HttpEntityEnclosingRequest)httpRequest).getEntity();
-
-        if (entity == null) {
-            data = new byte [0];
-        } else {
-            data = EntityUtils.toByteArray(entity);
-        }
-
-        JSONObject jsonObj = new JSONObject(new String(data));
-
-        //TODO write output to log file
-        System.out.println(jsonObj);
-
-        if(jsonObj.get("method").toString().equals("listenForBlocks")){
-            JSONObject payload = jsonObj.getJSONObject("data");
-            ObjectMapper mapper = new ObjectMapper();
-
-            Block block = mapper.readValue(payload.toString(), Block.class);
-            listenForBlocks(block);
+        try {
+            server.start();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
         }
     }
-    public void listenForBlocks(Block block){
 
+    @Override
+    public void run() {
+        startServer();
+    }
+
+    public Wallet getWallet() {
+        return wallet;
+    }
+
+    public WalletHandler getWalletHandler() {
+        return walletHandler;
     }
 
     public ArrayList<String> getPendingTransactions() {

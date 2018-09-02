@@ -4,17 +4,11 @@ import java.util.ArrayList;
 
 public class Node {
 
-    private ArrayList<String> pendingTransactions = new ArrayList<>();
-    private Blockchain blockchain;
+    private volatile ArrayList<String> pendingTransactions = new ArrayList<>();
     private Wallet wallet;
 
     public Node(Wallet wallet) {
-        this.blockchain = wallet.getBlockchain();
         this.wallet = wallet;
-    }
-
-    public Blockchain getBlockchain() {
-        return blockchain;
     }
 
     public Wallet getWallet() {
@@ -27,5 +21,9 @@ public class Node {
 
     public void setPendingTransactions(ArrayList<String> pendingTransactions) {
         this.pendingTransactions = pendingTransactions;
+    }
+
+    public void addPendingTransaction(String transaction) {
+        pendingTransactions.add(transaction);
     }
 }

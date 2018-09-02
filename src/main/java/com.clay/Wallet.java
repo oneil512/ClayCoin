@@ -3,27 +3,26 @@ package com.clay;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.bootstrap.HttpServer;
-import org.apache.http.impl.bootstrap.ServerBootstrap;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import sun.misc.BASE64Encoder;
 
 import java.io.IOException;
-import java.security.*;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PublicKey;
+import java.security.Signature;
 import java.security.spec.ECGenParameterSpec;
 import java.util.Base64;
 
-public class Wallet extends Thread {
+public class Wallet {
     private double balance = 0;
 
     private Blockchain blockchain;
-    private WalletService walletService;
     private KeyPair keyPair;
 
     public Wallet(Blockchain blockchain){
 	    this.blockchain = blockchain;
-        this.walletService = new WalletService();
         try {
             this.keyPair = getKeyPair();
         } catch (Exception e) {
@@ -86,26 +85,9 @@ public class Wallet extends Thread {
         }
     }
 
-    public void startServer(){
-        final HttpServer server = ServerBootstrap.bootstrap()
-                .setListenerPort(8331)
-                .setServerInfo("Test/1.1")
-                .registerHandler("*", this.walletService)
-                .create();
-
-        try {
-            server.start();
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-    }
 
     public Blockchain getBlockchain(){
 	    return this.blockchain;
-    }
-
-    private Transaction receiveTransaction(Transaction transaction){
-        return transaction;
     }
 
     private static KeyPair getKeyPair() throws Exception {
@@ -116,8 +98,5 @@ public class Wallet extends Thread {
         return kp;
     }
 
-    @Override
-    public void run() {
-        startServer();
-    }
+
 }

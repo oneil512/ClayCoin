@@ -10,7 +10,6 @@ public class Transaction {
     private String fromAddress;
     private String toAddress;
     private String hash;
-    private String publicKey;
 
     private String signature;
     private double amount;
@@ -66,14 +65,6 @@ public class Transaction {
         this.signature = signature;
     }
 
-    public String getPublicKey() {
-        return publicKey;
-    }
-
-    public void setPublicKey(String publicKey) {
-        this.publicKey = publicKey;
-    }
-
     public String toJson() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
@@ -92,7 +83,6 @@ public class Transaction {
                 "fromAddress='" + fromAddress + '\'' +
                 ", toAddress='" + toAddress + '\'' +
                 ", hash='" + hash + '\'' +
-                ", publicKey=" + publicKey +
                 ", signature='" + signature + '\'' +
                 ", amount=" + amount +
                 '}';

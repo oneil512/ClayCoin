@@ -4,11 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.*;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.util.EntityUtils;
@@ -18,17 +13,15 @@ import sun.security.ec.ECPublicKeyImpl;
 import java.io.IOException;
 import java.security.PublicKey;
 import java.security.Signature;
-import java.util.ArrayList;
 
 public class NodeHandler implements HttpRequestHandler {
-    private Node node;
+    private volatile Node node;
 
     public NodeHandler(Node node){
         this.node = node;
     }
 
-
-    public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext) throws HttpException, IOException {
+    public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext) throws IOException {
         byte[] data;
         HttpEntity entity = null;
 
@@ -62,14 +55,15 @@ public class NodeHandler implements HttpRequestHandler {
         }
     }
     public void listenForTransactions(Transaction transaction){
-        node.getPendingTransactions().add(transaction.toString());
         if(validateTransaction(transaction)) {
-            mine(4);
+            node.addPendingTransaction(transaction.toString());
         }
     }
 
     private void listenForBlock(Block block){
-        validateBlock(block);
+        if (validateBlock(block)){
+            node.getWallet().getBlockchain().addBlock(block);
+        }
     }
 
     private boolean validateBlock(Block block){
@@ -84,62 +78,18 @@ public class NodeHandler implements HttpRequestHandler {
             PublicKey pk = new ECPublicKeyImpl(Base64.decodeBase64(transaction.getFromAddress()));
             sig.initVerify(pk);
             sig.update(transaction.getHash().getBytes());
-            System.out.println(sig.verify(Base64.decodeBase64(transaction.getSignature())));
             verifySig = sig.verify(Base64.decodeBase64(transaction.getSignature()));
 
         } catch (Exception e){
             System.out.println(e.getMessage());
         }
 
-        if(transaction.getAmount() > 0 && verifySig) {
+        if(transaction.getAmount() >= 0 && verifySig) {
             return true;
         }
         return false;
     }
 
-
-    public void broadcastBlock(Block block){
-        CloseableHttpClient httpclient = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost("http://localhost:8331");
-        StringEntity requestEntity = new StringEntity(
-                "{\"method\" : \"listenForTransactions\", \"data\" : " + block.toJson() + " }",
-                ContentType.APPLICATION_JSON);
-        try {
-            httpPost.setEntity(requestEntity);
-            httpclient.execute(httpPost);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public void mine(int difficulty){
-        String check = new String(new char[difficulty]).replace("\0", "0");
-        while (node.getPendingTransactions().size() > 0) {
-            System.out.println("pending trans > 0");
-            boolean minedBlock = false;
-
-            Block block = new Block(
-                    node.getBlockchain().getLastBlock().getBlockHash(),
-                    node.getPendingTransactions(),
-                    node.getWallet().getAddress()
-            );
-
-            while (!minedBlock) {
-                String sha256hex = DigestUtils.sha256Hex(block.getBlockHead());
-                //System.out.println("hash " + sha256hex);
-
-                if (sha256hex.startsWith(check)) {
-                    block.setBlockHash(sha256hex);
-                    minedBlock = true;
-                    System.out.print(block.getBlockHash());
-                }
-                block.incrementNonce();
-            }
-            broadcastBlock(block);
-            System.out.println(block.getNonce());
-            node.setPendingTransactions(new ArrayList<>());
-        }
-    }
 
     public Node getNode() {
         return node;

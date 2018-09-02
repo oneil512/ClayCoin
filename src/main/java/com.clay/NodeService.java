@@ -4,13 +4,28 @@ import org.apache.http.impl.bootstrap.HttpServer;
 import org.apache.http.impl.bootstrap.ServerBootstrap;
 
 import java.io.IOException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class NodeService extends Thread {
     private NodeHandler nodeHandler;
+    private Miner miner;
 
-    public NodeService(Wallet wallet) {
-        this.nodeHandler = new NodeHandler(new Node(wallet));
-        run();
+    private volatile Node node;
+    private Wallet wallet;
+    private WalletService walletService;
+
+    public NodeService(WalletService walletService) {
+        this.walletService = walletService;
+        this.wallet = walletService.getWallet();
+        this.node = new Node(wallet);
+
+        this.miner = new Miner(node);
+        this.nodeHandler = new NodeHandler(node);
+
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> this.run());
+        executor.execute(() -> miner.run());
     }
 
     public void startServer(){

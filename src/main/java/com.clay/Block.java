@@ -70,7 +70,7 @@ public class Block {
         return blockHash;
     }
 
-    public int getNonce() {
+    public Integer getNonce() {
         return nonce;
     }
 
