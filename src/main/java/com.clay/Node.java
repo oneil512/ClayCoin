@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Node {
 
     private volatile ArrayList<String> pendingTransactions = new ArrayList<>();
-    private Wallet wallet;
+    private volatile Wallet wallet;
 
     public Node(Wallet wallet) {
         this.wallet = wallet;

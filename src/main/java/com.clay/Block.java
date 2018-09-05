@@ -66,6 +66,10 @@ public class Block {
         this.nonce += 1;
     }
 
+    public void setTransactions(ArrayList<String> transactions) {
+        this.transactions = transactions;
+    }
+
     public String getBlockHash() {
         return blockHash;
     }

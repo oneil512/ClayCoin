@@ -18,7 +18,7 @@ import java.util.Base64;
 public class Wallet {
     private double balance = 0;
 
-    private Blockchain blockchain;
+    private volatile Blockchain blockchain;
     private KeyPair keyPair;
 
     public Wallet(Blockchain blockchain){

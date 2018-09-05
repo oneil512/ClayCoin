@@ -21,8 +21,6 @@ public class Miner extends Thread {
     public void mine(int difficulty){
         String check = new String(new char[difficulty]).replace("\0", "0");
         while (true) {
-            System.out.println("pending trans num");
-            System.out.println(node.getPendingTransactions().size());
             boolean minedBlock = false;
 
             Block block = new Block(
@@ -32,10 +30,17 @@ public class Miner extends Thread {
             );
 
             while (!minedBlock) {
+                block.setTransactions(node.getPendingTransactions());
                 String sha256hex = DigestUtils.sha256Hex(block.getBlockHead());
+
                 //System.out.println("hash " + sha256hex);
 
                 if (sha256hex.startsWith(check)) {
+
+                    System.out.println("transactions in block");
+                    System.out.println(node.getPendingTransactions().size());
+                    System.out.println(block.getTransactions().toString());
+
                     block.setBlockHash(sha256hex);
                     minedBlock = true;
                     System.out.print("hash " + block.getBlockHash());
@@ -52,7 +57,7 @@ public class Miner extends Thread {
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost("http://localhost:8331");
         StringEntity requestEntity = new StringEntity(
-                "{\"method\" : \"listenForTransactions\", \"data\" : " + block.toJson() + " }",
+                "{\"method\" : \"listenForBlocks\", \"data\" : " + block.toJson() + " }",
                 ContentType.APPLICATION_JSON);
         try {
             httpPost.setEntity(requestEntity);
@@ -64,7 +69,7 @@ public class Miner extends Thread {
 
     @Override
     public void run() {
-        mine(4);
+        mine(5);
     }
 
 }
