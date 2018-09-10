@@ -9,6 +9,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class WalletHandler  implements HttpRequestHandler {
 
@@ -48,7 +49,17 @@ public class WalletHandler  implements HttpRequestHandler {
     private void listenForBlock(Block block){
         if (validateBlock(block)){
             wallet.getBlockchain().addBlock(block);
+            this.updateBalance(block);
         }
+    }
+
+    private void updateBalance(Block block){
+        ArrayList<String> transactions = block.getTransactions();
+
+        for(int i = 0; i < transactions.size(); i++){
+
+        }
+
     }
 
     private boolean validateBlock(Block block){

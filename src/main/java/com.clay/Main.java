@@ -4,7 +4,9 @@ public class Main {
 
     public static void main(String[] args){
 
-        //TODO allow for all nodes to try and mine block and select their policy for doing so
+    	//conflict resolution when node gets a soft fork
+		//wallets updating their value when transaction recieved
+		//more validation
         // send loops of async requests to everything in the node/wallet connection address
     	Blockchain blockchain = new Blockchain();
 
