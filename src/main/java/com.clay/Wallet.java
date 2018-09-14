@@ -8,10 +8,7 @@ import org.apache.http.impl.client.HttpClients;
 import sun.misc.BASE64Encoder;
 
 import java.io.IOException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PublicKey;
-import java.security.Signature;
+import java.security.*;
 import java.security.spec.ECGenParameterSpec;
 import java.util.Base64;
 
@@ -35,12 +32,20 @@ public class Wallet {
         return balance;
     }
 
+    public void setBalance(double amount) {
+        balance += amount;
+    }
+
     public String getAddress() {
         return Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded());
     }
 
     public PublicKey getPublicKey(){
         return keyPair.getPublic();
+    }
+
+    public PrivateKey getPrivateKey(){
+        return keyPair.getPrivate();
     }
 
     public Boolean sendTransaction(double amount, String toAddress){
@@ -54,7 +59,7 @@ public class Wallet {
         return false;
     }
 
-    private Transaction signTransaction(Transaction transaction){
+    public Transaction signTransaction(Transaction transaction){
         try {
             byte[] data = transaction.getHash().getBytes();
 

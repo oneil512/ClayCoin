@@ -13,15 +13,13 @@ public class NodeService extends Thread {
 
     private volatile Node node;
     private Wallet wallet;
-    private WalletService walletService;
 
     public NodeService(WalletService walletService) {
-        this.walletService = walletService;
         this.wallet = walletService.getWallet();
         this.node = new Node(wallet);
 
         this.miner = new Miner(node);
-        this.nodeHandler = new NodeHandler(node);
+        this.nodeHandler = new NodeHandler(this);
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> this.run());
@@ -40,6 +38,10 @@ public class NodeService extends Thread {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    public Node getNode() {
+        return node;
     }
 
     @Override

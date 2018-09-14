@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.commons.codec.digest.DigestUtils;
 
+import java.util.Map;
+
 public class Transaction {
 
     private String fromAddress;
@@ -13,6 +15,7 @@ public class Transaction {
 
     private String signature;
     private double amount;
+    private Map<String, String> nodeVerifications;
 
     public Transaction(){}
 
@@ -63,6 +66,10 @@ public class Transaction {
 
     public void setSignature(String signature) {
         this.signature = signature;
+    }
+
+    public void addNodeSignature(String signature, String address) {
+        nodeVerifications.put(signature, address);
     }
 
     public String toJson() {
