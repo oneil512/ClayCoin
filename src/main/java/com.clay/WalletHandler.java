@@ -1,22 +1,16 @@
 package com.clay;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.http.*;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONObject;
 import sun.security.ec.ECPublicKeyImpl;
 
-import java.io.IOException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class WalletHandler  implements HttpRequestHandler {
+public class WalletHandler extends Handler implements HttpRequestHandler {
 
     private Wallet wallet;
     private HashMap transactionPool;
@@ -27,42 +21,7 @@ public class WalletHandler  implements HttpRequestHandler {
         this.transactionPool = new HashMap<String, Integer>();
     }
 
-    public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext) throws HttpException, IOException {
-        byte[] data;
-        HttpEntity entity = null;
-
-        if (httpRequest instanceof HttpEntityEnclosingRequest)
-            entity = ((HttpEntityEnclosingRequest)httpRequest).getEntity();
-
-        if (entity == null) {
-            data = new byte [0];
-        } else {
-            data = EntityUtils.toByteArray(entity);
-        }
-
-        JSONObject jsonObj = new JSONObject(new String(data));
-
-        //TODO write output to log file
-        System.out.println(jsonObj);
-
-        if(jsonObj.get("method").toString().equals("listenForTransactions")){
-            JSONObject payload = jsonObj.getJSONObject("data");
-            ObjectMapper mapper = new ObjectMapper();
-
-            Transaction transaction = mapper.readValue(payload.toString(), Transaction.class);
-            listenForTransactions(transaction);
-        }
-
-        if(jsonObj.get("method").toString().equals("listenForBlocks")){
-            JSONObject payload = jsonObj.getJSONObject("data");
-            ObjectMapper mapper = new ObjectMapper();
-
-            Block block = mapper.readValue(payload.toString(), Block.class);
-            listenForBlock(block);
-        }
-    }
-
-    private boolean validateTransaction(Transaction transaction){
+    public boolean validateTransaction(Transaction transaction){
 
         Boolean verifySig = false;
         try {
@@ -94,7 +53,7 @@ public class WalletHandler  implements HttpRequestHandler {
         }
     }
 
-    private void listenForBlock(Block block){
+    public void listenForBlock(Block block){
         if (validateBlock(block)){
             wallet.getBlockchain().addBlock(block);
             this.updateBalance(block);
@@ -111,7 +70,7 @@ public class WalletHandler  implements HttpRequestHandler {
     }
 
     private boolean validateBlock(Block block){
-        return DigestUtils.sha256Hex(block.getBlockHead()).equals(block.getBlockHash());
+        return DigestUtils.sha256Hex(block.getBlockHead()).equals(block.gethash());
     }
 
 }

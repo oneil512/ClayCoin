@@ -72,6 +72,14 @@ public class Transaction {
         nodeVerifications.put(signature, address);
     }
 
+    public Map<String, String> getNodeVerifications(){
+        return nodeVerifications;
+    }
+
+    public void setNodeVerifications(Map<String, String> nodeVerifications) {
+        this.nodeVerifications = nodeVerifications;
+    }
+
     public String toJson() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);

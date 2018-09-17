@@ -17,7 +17,7 @@ public class Block {
 
     private Integer merkleRoot;
     private Integer reward = 10;
-    private String blockHash;
+    private String hash;
 
     public Block(){}
 
@@ -28,7 +28,7 @@ public class Block {
         this.transactions.add(0, new Transaction(reward, "0", address).toString());
         this.merkleRoot = generateMerkleRoot();
 
-        this.blockHash = DigestUtils.sha256Hex(getBlockHead());
+        this.hash = DigestUtils.sha256Hex(getBlockHead());
     }
 
     private int generateMerkleRoot(){
@@ -70,8 +70,8 @@ public class Block {
         this.transactions = transactions;
     }
 
-    public String getBlockHash() {
-        return blockHash;
+    public String gethash() {
+        return hash;
     }
 
     public Integer getNonce() {
@@ -94,8 +94,8 @@ public class Block {
         return merkleRoot;
     }
 
-    public void setBlockHash(String hash){
-        this.blockHash = hash;
+    public void sethash(String hash){
+        this.hash = hash;
     }
 
     public String toJson() {

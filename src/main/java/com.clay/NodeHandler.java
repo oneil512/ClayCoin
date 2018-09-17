@@ -3,24 +3,26 @@ package com.clay;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.http.*;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONObject;
 import sun.misc.BASE64Encoder;
 import sun.security.ec.ECPublicKeyImpl;
 
 import java.io.IOException;
 import java.security.PublicKey;
 import java.security.Signature;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-public class NodeHandler implements HttpRequestHandler {
+import static sun.tools.jstat.Alignment.keySet;
+
+public class NodeHandler extends Handler implements HttpRequestHandler {
     private volatile Node node;
     private NodeService nodeService;
 
@@ -29,49 +31,8 @@ public class NodeHandler implements HttpRequestHandler {
         this.nodeService = nodeService;
     }
 
-    public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext) throws IOException {
-        byte[] data;
-        HttpEntity entity = null;
-
-        if (httpRequest instanceof HttpEntityEnclosingRequest)
-            entity = ((HttpEntityEnclosingRequest)httpRequest).getEntity();
-
-        if (entity == null) {
-            data = new byte [0];
-        } else {
-            data = EntityUtils.toByteArray(entity);
-        }
-        JSONObject jsonObj = new JSONObject(new String(data));
-
-        //TODO write output to log file
-        System.out.println(jsonObj);
-
-        if(jsonObj.get("method").toString().equals("listenForTransactions")){
-            JSONObject payload = jsonObj.getJSONObject("data");
-            ObjectMapper mapper = new ObjectMapper();
-
-            Transaction transaction = mapper.readValue(payload.toString(), Transaction.class);
-            listenForTransactions(transaction);
-        }
-
-        if(jsonObj.get("method").toString().equals("listenForBlocks")){
-            JSONObject payload = jsonObj.getJSONObject("data");
-            ObjectMapper mapper = new ObjectMapper();
-
-            Block block = mapper.readValue(payload.toString(), Block.class);
-            listenForBlock(block);
-        }
-    }
-    public void listenForTransactions(Transaction transaction){
-        if(validateTransaction(transaction)) {
-            node.addPendingTransaction(transaction.toJson());
-        }
-    }
-
-    private void listenForBlock(Block block){
-        if (validateBlock(block)){
-            node.getWallet().getBlockchain().addBlock(block);
-        }
+    public Node getNode() {
+        return node;
     }
 
     public void broadcastVerifiedTransaction(Transaction transaction) {
@@ -89,29 +50,16 @@ public class NodeHandler implements HttpRequestHandler {
         }
     }
 
-    private boolean validateBlock(Block block){
-        return DigestUtils.sha256Hex(block.getBlockHead()).equals(block.getBlockHash());
+    public void listenForTransactions(Transaction transaction){
+        if(validateTransaction(transaction)) {
+            node.addPendingTransaction(dedupeVerifications(transaction).toJson());
+        }
     }
 
-    private boolean validateTransaction(Transaction transaction){
-
-        Boolean verifySig = false;
-        try {
-            Signature sig = Signature.getInstance("SHA1WithECDSA");
-            PublicKey pk = new ECPublicKeyImpl(Base64.decodeBase64(transaction.getFromAddress()));
-            sig.initVerify(pk);
-            sig.update(transaction.getHash().getBytes());
-            verifySig = sig.verify(Base64.decodeBase64(transaction.getSignature()));
-
-        } catch (Exception e){
-            System.out.println(e.getMessage());
+    public void listenForBlock(Block block){
+        if (validateBlock(block)){
+            node.getWallet().getBlockchain().addBlock(block);
         }
-
-        if(transaction.getAmount() >= 0 && verifySig) {
-            broadcastVerified(transaction);
-            return true;
-        }
-        return false;
     }
 
     private void broadcastVerified(Transaction transaction) {
@@ -135,7 +83,51 @@ public class NodeHandler implements HttpRequestHandler {
         return transaction;
     }
 
-    public Node getNode() {
-        return node;
+    @Override
+    public boolean validateTransaction(Transaction transaction){
+
+        Boolean verifySig = false;
+        try {
+            Signature sig = Signature.getInstance("SHA1WithECDSA");
+            PublicKey pk = new ECPublicKeyImpl(Base64.decodeBase64(transaction.getFromAddress()));
+            sig.initVerify(pk);
+            sig.update(transaction.getHash().getBytes());
+            verifySig = sig.verify(Base64.decodeBase64(transaction.getSignature()));
+
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+
+        if(transaction.getAmount() >= 0 && verifySig) {
+            broadcastVerified(transaction);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean validateBlock(Block block) {
+        return DigestUtils.sha256Hex(block.getBlockHead()).equals(block.gethash());
+    }
+
+    public Transaction dedupeVerifications(Transaction transaction) {
+        ArrayList<String> pendingTransactions = node.getPendingTransactions();
+        for(int i = 0; i < node.getPendingTransactions().size(); i++){
+            if(transaction.getHash() == pendingTransactions.get(i)){
+                ObjectMapper mapper = new ObjectMapper();
+
+                try {
+                    Transaction transaction1 = mapper.readValue(pendingTransactions.get(i), Transaction.class);
+                    Map<String, String> all = transaction.getNodeVerifications();
+                    all.putAll(transaction1.getNodeVerifications());
+                    pendingTransactions.remove(i);
+                    transaction1.setNodeVerifications(all);
+                    return transaction1;
+
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        }
+        return transaction;
     }
 }

@@ -24,7 +24,7 @@ public class Miner extends Thread {
             boolean minedBlock = false;
 
             Block block = new Block(
-                    node.getWallet().getBlockchain().getLastBlock().getBlockHash(),
+                    node.getWallet().getBlockchain().getLastBlock().gethash(),
                     node.getPendingTransactions(),
                     node.getWallet().getAddress()
             );
@@ -41,9 +41,9 @@ public class Miner extends Thread {
                     System.out.println(node.getPendingTransactions().size());
                     System.out.println(block.getTransactions().toString());
 
-                    block.setBlockHash(sha256hex);
+                    block.sethash(sha256hex);
                     minedBlock = true;
-                    System.out.print("hash " + block.getBlockHash());
+                    System.out.print("hash " + block.gethash());
                 }
                 block.incrementNonce();
             }
