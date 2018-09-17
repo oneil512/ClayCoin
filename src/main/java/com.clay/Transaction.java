@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.commons.codec.digest.DigestUtils;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class Transaction {
@@ -15,7 +16,7 @@ public class Transaction {
 
     private String signature;
     private double amount;
-    private Map<String, String> nodeVerifications;
+    private Map<String, String> nodeVerifications = new HashMap<>();
 
     public Transaction(){}
 

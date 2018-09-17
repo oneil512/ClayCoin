@@ -64,7 +64,7 @@ public class NodeHandler extends Handler implements HttpRequestHandler {
 
     private void broadcastVerified(Transaction transaction) {
         Transaction verifiedTransaction = signTransaction(transaction);
-        broadcastVerifiedTransaction(verifiedTransaction);
+        //broadcastVerifiedTransaction(verifiedTransaction); Can't do this while I am broadcasting to myself
     }
 
     public Transaction signTransaction(Transaction transaction){
@@ -78,7 +78,7 @@ public class NodeHandler extends Handler implements HttpRequestHandler {
             transaction.addNodeSignature(new BASE64Encoder().encode(signatureBytes), node.getWallet().getAddress());
 
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println(e.getLocalizedMessage());
         }
         return transaction;
     }
