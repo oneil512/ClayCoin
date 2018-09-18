@@ -25,7 +25,7 @@ public class Block {
         this.previousHash = previousHash;
         this.transactions = transactions;
         this.ts = Instant.now();
-        this.transactions.add(0, new Transaction(reward, "0", address).toString());
+        this.transactions.add(0, new Transaction(reward, "0", address).toJson());
         this.merkleRoot = generateMerkleRoot();
 
         this.hash = DigestUtils.sha256Hex(getBlockHead());

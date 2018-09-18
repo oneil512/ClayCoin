@@ -52,7 +52,22 @@ public class NodeHandler extends Handler implements HttpRequestHandler {
 
     public void listenForTransactions(Transaction transaction){
         if(validateTransaction(transaction)) {
-            node.addPendingTransaction(dedupeVerifications(transaction).toJson());
+            if(node.getPendingTransactions().contains(transaction.toJson())){
+                String t = node.getPendingTransactions().get(node.getPendingTransactions().indexOf(transaction.toJson()));
+                try {
+                    ObjectMapper mapper = new ObjectMapper();
+                    Transaction transaction1 = mapper.readValue(t, Transaction.class);
+                    transaction1.addNodeSignatures(transaction.getNodeVerifications());
+                    String newTransaction = transaction1.toJson();
+                    node.getPendingTransactions().remove(t);
+                    node.getPendingTransactions().add(newTransaction);
+                } catch (Exception e){
+                    System.out.println(e.getLocalizedMessage());
+                }
+
+            } else {
+                node.addPendingTransaction(transaction.toJson());
+            }
         }
     }
 
@@ -107,27 +122,5 @@ public class NodeHandler extends Handler implements HttpRequestHandler {
 
     private boolean validateBlock(Block block) {
         return DigestUtils.sha256Hex(block.getBlockHead()).equals(block.gethash());
-    }
-
-    public Transaction dedupeVerifications(Transaction transaction) {
-        ArrayList<String> pendingTransactions = node.getPendingTransactions();
-        for(int i = 0; i < node.getPendingTransactions().size(); i++){
-            if(transaction.getHash() == pendingTransactions.get(i)){
-                ObjectMapper mapper = new ObjectMapper();
-
-                try {
-                    Transaction transaction1 = mapper.readValue(pendingTransactions.get(i), Transaction.class);
-                    Map<String, String> all = transaction.getNodeVerifications();
-                    all.putAll(transaction1.getNodeVerifications());
-                    pendingTransactions.remove(i);
-                    transaction1.setNodeVerifications(all);
-                    return transaction1;
-
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                }
-            }
-        }
-        return transaction;
     }
 }

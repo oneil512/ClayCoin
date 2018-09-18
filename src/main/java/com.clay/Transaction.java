@@ -16,7 +16,7 @@ public class Transaction {
 
     private String signature;
     private double amount;
-    private Map<String, String> nodeVerifications = new HashMap<>();
+    private HashMap<String, String> nodeVerifications = new HashMap<>();
 
     public Transaction(){}
 
@@ -73,11 +73,15 @@ public class Transaction {
         nodeVerifications.put(signature, address);
     }
 
-    public Map<String, String> getNodeVerifications(){
+    public void addNodeSignatures(HashMap<String, String> sigs) {
+        nodeVerifications.putAll(sigs);
+    }
+
+    public HashMap<String, String> getNodeVerifications(){
         return nodeVerifications;
     }
 
-    public void setNodeVerifications(Map<String, String> nodeVerifications) {
+    public void setNodeVerifications(HashMap<String, String> nodeVerifications) {
         this.nodeVerifications = nodeVerifications;
     }
 
