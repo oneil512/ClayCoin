@@ -86,27 +86,4 @@ public class WalletHandler extends Handler implements HttpRequestHandler {
     private boolean validateBlock(Block block){
         return DigestUtils.sha256Hex(block.getBlockHead()).equals(block.gethash());
     }
-
-    public Transaction dedupeVerifications(Transaction transaction) {
-        ArrayList<String> pendingTransactions = transactionPool;
-        for(int i = 0; i < transactionPool.size(); i++){
-            if(transaction.getHash() == pendingTransactions.get(i)){
-                ObjectMapper mapper = new ObjectMapper();
-
-                try {
-                    Transaction transaction1 = mapper.readValue(pendingTransactions.get(i), Transaction.class);
-                    Map<String, String> all = transaction.getNodeVerifications();
-                    all.putAll(transaction1.getNodeVerifications());
-                    pendingTransactions.remove(i);
-                    transaction1.setNodeVerifications(all);
-                    return transaction1;
-
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                }
-            }
-        }
-        return transaction;
-    }
-
 }
