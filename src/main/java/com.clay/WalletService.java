@@ -9,7 +9,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class WalletService extends Thread  {
-    private ArrayList<String> pendingTransactions = new ArrayList<>();
+    private ArrayList<Transaction> pendingTransactions = new ArrayList<>();
     private Wallet wallet;
     private WalletHandler walletHandler;
 
@@ -46,7 +46,7 @@ public class WalletService extends Thread  {
         return walletHandler;
     }
 
-    public ArrayList<String> getPendingTransactions() {
+    public ArrayList<Transaction> getPendingTransactions() {
         return pendingTransactions;
     }
 }

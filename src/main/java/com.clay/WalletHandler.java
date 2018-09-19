@@ -1,64 +1,26 @@
 package com.clay;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.protocol.HttpRequestHandler;
-import sun.security.ec.ECPublicKeyImpl;
 
-import java.security.PublicKey;
-import java.security.Signature;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class WalletHandler extends Handler implements HttpRequestHandler {
 
     private Wallet wallet;
-    private ArrayList<String> transactionPool;
+    private ArrayList<Transaction> transactionPool;
     private Integer MIN_VERIFICATION = 0;
 
     public WalletHandler(Wallet wallet){
         this.wallet = wallet;
-        this.transactionPool = new ArrayList<String>();
+        this.transactionPool = new ArrayList<Transaction>();
     }
-
-    public boolean validateTransaction(Transaction transaction){
-
-        Boolean verifySig = false;
-        try {
-            Signature sig = Signature.getInstance("SHA1WithECDSA");
-            PublicKey pk = new ECPublicKeyImpl(Base64.decodeBase64(transaction.getFromAddress()));
-            sig.initVerify(pk);
-            sig.update(transaction.getHash().getBytes());
-            verifySig = sig.verify(Base64.decodeBase64(transaction.getSignature()));
-
-        } catch (Exception e){
-            System.out.println(e.getMessage());
-        }
-
-        if(transaction.getAmount() >= 0 && verifySig) {
-            return true;
-        }
-        return false;
-    }
-
 
     public void listenForTransactions(Transaction transaction){
         if(validateTransaction(transaction)) {
-            if(transactionPool.contains(transaction.toJson())) {
-                String t = transactionPool.get(transactionPool.indexOf(transaction.toJson()));
-
-                try {
-                    ObjectMapper mapper = new ObjectMapper();
-                    Transaction transaction1 = mapper.readValue(t, Transaction.class);
-                    transaction1.addNodeSignatures(transaction.getNodeVerifications());
-                    String newTransaction = transaction1.toJson();
-                    transactionPool.remove(t);
-                   transactionPool.add(newTransaction);
-                } catch (Exception e) {
-                    System.out.println(e.getLocalizedMessage());
-                }
+            if(transactionPool.contains(transaction)) {
+                Transaction t = transactionPool.get(transactionPool.indexOf(transaction));
+                t.addNodeSignatures(transaction.getNodeVerifications());
             }
 
             if(transaction.getToAddress() == wallet.getAddress() && transaction.getNodeVerifications().size() > MIN_VERIFICATION){
@@ -75,7 +37,7 @@ public class WalletHandler extends Handler implements HttpRequestHandler {
     }
 
     private void updateBalance(Block block){
-        ArrayList<String> transactions = block.getTransactions();
+        ArrayList<Transaction> transactions = block.getTransactions();
 
         for(int i = 0; i < transactions.size(); i++){
 

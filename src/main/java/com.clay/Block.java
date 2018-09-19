@@ -10,7 +10,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 public class Block {
     private String previousHash;
-    private ArrayList<String> transactions;
+    private ArrayList<Transaction> transactions;
 
     private Integer nonce = 0;
     private Instant ts;
@@ -21,11 +21,11 @@ public class Block {
 
     public Block(){}
 
-    public Block(String previousHash, ArrayList<String> transactions, String address) {
+    public Block(String previousHash, ArrayList<Transaction> transactions, String address) {
         this.previousHash = previousHash;
         this.transactions = transactions;
         this.ts = Instant.now();
-        this.transactions.add(0, new Transaction(reward, "0", address).toJson());
+        this.transactions.add(0, new Transaction(reward, "0", address));
         this.merkleRoot = generateMerkleRoot();
 
         this.hash = DigestUtils.sha256Hex(getBlockHead());
@@ -54,7 +54,7 @@ public class Block {
         return list.get(0);
     }
 
-    public ArrayList<String> getTransactions() {
+    public ArrayList<Transaction> getTransactions() {
         return transactions;
     }
 
@@ -66,7 +66,7 @@ public class Block {
         this.nonce += 1;
     }
 
-    public void setTransactions(ArrayList<String> transactions) {
+    public void setTransactions(ArrayList<Transaction> transactions) {
         this.transactions = transactions;
     }
 

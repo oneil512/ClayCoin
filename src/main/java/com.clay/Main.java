@@ -4,10 +4,8 @@ public class Main {
 
     public static void main(String[] args){
 
-    	//conflict resolution when node gets a soft fork
-		//wallets updating their value when transaction recieved
-		//more validation
-		//wallet should be able to recieve transaction and just wait for suffiencet confirmations
+    	// conflict resolution when node gets a soft fork
+		// more validation
         // send loops of async requests to everything in the node/wallet connection address
     	Blockchain blockchain = new Blockchain();
 
