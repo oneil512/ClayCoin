@@ -34,10 +34,12 @@ public class Block {
     }
 
     private int generateMerkleRoot(){
-        if(transactions.size() % 2 != 0){
-                transactions.add(transactions.get(transactions.size() - 1));
-        }
         ArrayList<Integer> list = new ArrayList<>();
+
+        if(transactions.size() % 2 != 0){
+                list.add(transactions.get(transactions.size() - 1).hashCode());
+        }
+
         for(int i = 0; i < transactions.size(); i++){
             list.add(transactions.get(i).hashCode());
         }
@@ -53,7 +55,7 @@ public class Block {
             Integer h3 = (h1.toString() + h2.toString()).hashCode();
             list.add(h3);
         }
-        return list.get(0);
+        return list.size() > 0 ? list.get(0) : 0;
     }
 
     public ArrayList<Transaction> getTransactions() {
@@ -77,6 +79,7 @@ public class Block {
         } finally {
             semaphore.release();
         }
+        generateMerkleRoot();
     }
 
     public String gethash() {
