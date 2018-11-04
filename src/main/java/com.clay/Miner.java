@@ -34,7 +34,6 @@ public class Miner extends Thread {
                 String sha256hex = DigestUtils.sha256Hex(block.getBlockHead());
 
                 //System.out.println("hash " + sha256hex);
-
                 if (sha256hex.startsWith(check)) {
 
                     System.out.println("transactions in block");
@@ -69,7 +68,7 @@ public class Miner extends Thread {
 
     @Override
     public void run() {
-        mine(5);
+        mine(4);
     }
 
 }

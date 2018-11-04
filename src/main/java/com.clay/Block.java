@@ -1,8 +1,8 @@
 package com.clay;
 
-import java.security.PublicKey;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -18,6 +18,8 @@ public class Block {
     private Integer merkleRoot;
     private Integer reward = 10;
     private String hash;
+
+    static Semaphore semaphore = new Semaphore(1);
 
     public Block(){}
 
@@ -67,7 +69,14 @@ public class Block {
     }
 
     public void setTransactions(ArrayList<Transaction> transactions) {
-        this.transactions = transactions;
+        try {
+            semaphore.acquire();
+            this.transactions = transactions;
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        } finally {
+            semaphore.release();
+        }
     }
 
     public String gethash() {
@@ -108,11 +117,19 @@ public class Block {
     }
 
     public String getBlockHead() {
-        return previousHash +
-                transactions.toString() +
-                nonce.toString() +
-                ts.toString() +
-                merkleRoot.toString();
+        try {
+            semaphore.acquire();
+            return previousHash +
+                    transactions.toString() +
+                    nonce.toString() +
+                    ts.toString() +
+                    merkleRoot.toString();
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        } finally {
+            semaphore.release();
+        }
+        return "";
     }
 
 }

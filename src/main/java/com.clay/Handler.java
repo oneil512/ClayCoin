@@ -52,6 +52,7 @@ public abstract class Handler {
 
     public boolean validateTransaction(Transaction transaction){
 
+        Boolean verify = true;
         Boolean verifySig = false;
         try {
             Signature sig = Signature.getInstance("SHA1WithECDSA");
@@ -63,11 +64,10 @@ public abstract class Handler {
         } catch (Exception e){
             System.out.println(e.getMessage());
         }
+        verify = verify && verifySig;
+        verify = verify && transaction.getAmount() >= 0;
 
-        if(transaction.getAmount() >= 0 && verifySig) {
-            return true;
-        }
-        return false;
+        return verify;
     }
 
 

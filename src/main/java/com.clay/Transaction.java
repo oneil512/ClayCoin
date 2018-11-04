@@ -7,6 +7,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 public class Transaction {
 
@@ -17,6 +18,8 @@ public class Transaction {
     private String signature;
     private double amount;
     private HashMap<String, String> nodeVerifications = new HashMap<>();
+
+    static Semaphore semaphore = new Semaphore(1);
 
     public Transaction(){}
 
@@ -70,11 +73,25 @@ public class Transaction {
     }
 
     public void addNodeSignature(String signature, String address) {
-        nodeVerifications.put(signature, address);
+        try {
+            semaphore.acquire();
+            nodeVerifications.put(signature, address);
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        } finally {
+            semaphore.release();
+        }
     }
 
     public void addNodeSignatures(HashMap<String, String> sigs) {
-        nodeVerifications.putAll(sigs);
+        try {
+            semaphore.acquire();
+            nodeVerifications.putAll(sigs);
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        } finally {
+            semaphore.release();
+        }
     }
 
     public HashMap<String, String> getNodeVerifications(){
@@ -86,25 +103,37 @@ public class Transaction {
     }
 
     public String toJson() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
         try {
+            semaphore.acquire();
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+            ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
             return ow.writeValueAsString(this);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return "{}";
+        } finally {
+            semaphore.release();
         }
     }
 
     @Override
     public String toString() {
-        return "Transaction{" +
-                "fromAddress='" + fromAddress + '\'' +
-                ", toAddress='" + toAddress + '\'' +
-                ", hash='" + hash + '\'' +
-                ", signature='" + signature + '\'' +
-                ", amount=" + amount +
-                '}';
+        try {
+            semaphore.acquire();
+            return "Transaction{" +
+                    "fromAddress='" + fromAddress + '\'' +
+                    ", toAddress='" + toAddress + '\'' +
+                    ", hash='" + hash + '\'' +
+                    ", signature='" + signature + '\'' +
+                    ", amount=" + amount +
+                    '}';
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return "Error in concurrency during toString";
+        } finally {
+            semaphore.release();
+        }
+
     }
 }
