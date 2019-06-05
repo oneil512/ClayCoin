@@ -1,4 +1,4 @@
-# Blockchain_
+# ClayCoin
 
 Proof of Work blockchain written in Java.  Uses SHA256.  I did this project to learn more about programming blockchains and to hopefully get a job in the field.  Right now when you run main a node and wallet are generated for you, a miner starts mining coins to your address, and a test script sends a transaction from you to yourself with 0 coins every two seconds.  In order to get multiple nodes in the network, uncomment line 62 in nodeHandler, and change all the ports/addresses to broadcast to the other nodes in your network.
 
